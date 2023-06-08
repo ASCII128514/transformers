@@ -21,6 +21,7 @@
 import math
 from typing import List, Optional, Tuple, Union
 
+import time
 import torch
 import torch.utils.checkpoint
 from torch import nn
@@ -288,7 +289,7 @@ class LlamaDecoderLayer(nn.Module):
         residual = hidden_states
 
         hidden_states = self.input_layernorm(hidden_states)
-
+        tic = time.time()
         # Self Attention
         hidden_states, self_attn_weights, present_key_value = self.self_attn(
             hidden_states=hidden_states,
@@ -299,13 +300,16 @@ class LlamaDecoderLayer(nn.Module):
             use_cache=use_cache,
         )
         hidden_states = residual + hidden_states
-
+        tok = time.time()
         # Fully Connected
         residual = hidden_states
         hidden_states = self.post_attention_layernorm(hidden_states)
         hidden_states = self.mlp(hidden_states)
         hidden_states = residual + hidden_states
 
+        res = time.time()
+        print(f"time used for attention: {tok - tic}")
+        print(f"time used for mlp: {res - tok}")
         outputs = (hidden_states,)
 
         if output_attentions:
