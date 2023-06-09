@@ -308,8 +308,8 @@ class LlamaDecoderLayer(nn.Module):
         hidden_states = residual + hidden_states
 
         res = time.time()
-        # print(f"time used for attention: {tok - tic}")
-        # print(f"time used for mlp: {res - tok}")
+        print(f"time used for attention: {tok - tic}")
+        print(f"time used for mlp: {res - tok}")
         outputs = (hidden_states,)
 
         if output_attentions:
