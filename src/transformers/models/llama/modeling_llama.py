@@ -556,6 +556,7 @@ class LlamaModel(LlamaPreTrainedModel):
         all_self_attns = () if output_attentions else None
         next_decoder_cache = () if use_cache else None
 
+        tok = time.time()
         for idx, decoder_layer in enumerate(self.layers):
             tic = time.time()
             if output_hidden_states:
@@ -597,7 +598,7 @@ class LlamaModel(LlamaPreTrainedModel):
             if output_attentions:
                 all_self_attns += (layer_outputs[1],)
             print(f"time for one layer:{time.time() - tic}")
-
+        print(f"total time: {time.time() - tok}")
         hidden_states = self.norm(hidden_states)
 
         # add hidden states from the last decoder layer
