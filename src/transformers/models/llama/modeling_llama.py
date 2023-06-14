@@ -556,6 +556,7 @@ class LlamaModel(LlamaPreTrainedModel):
         all_self_attns = () if output_attentions else None
         next_decoder_cache = () if use_cache else None
 
+        print("Start inference")
         tok = time.time()
         for idx, decoder_layer in enumerate(self.layers):
             tic = time.time()
