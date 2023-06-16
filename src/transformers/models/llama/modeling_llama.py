@@ -308,8 +308,8 @@ class LlamaDecoderLayer(nn.Module):
         hidden_states = residual + hidden_states
 
         res = time.time_ns()
-        print(f"{tic}, {tok}, {tok - tic}, attention, modeling_llama.py")
-        print(f"{tok}, {res}, {res - tok}, MLP, modeling_llama.py")
+        print(f"{tic}, {tok}, {tok - tic}, 4, attention, modeling_llama.py")
+        print(f"{tok}, {res}, {res - tok}, 4, MLP, modeling_llama.py")
         outputs = (hidden_states,)
 
         if output_attentions:
@@ -601,9 +601,9 @@ class LlamaModel(LlamaPreTrainedModel):
                 all_self_attns += (layer_outputs[1],)
 
             layer_end = time.time_ns()
-            print(f"{layer_start}, {layer_end}, {layer_end - layer_start}, one layer, modeling_llama.py")
+            print(f"{layer_start}, {layer_end}, {layer_end - layer_start}, 3, one layer, modeling_llama.py")
         layers_end = time.time_ns()
-        print(f"{layers_start}, {layers_end}, {layers_end - layers_start}, all layers, modeling_llama.py")
+        print(f"{layers_start}, {layers_end}, {layers_end - layers_start}, 2, all layers, modeling_llama.py")
         hidden_states = self.norm(hidden_states)
 
         # add hidden states from the last decoder layer
@@ -612,7 +612,7 @@ class LlamaModel(LlamaPreTrainedModel):
 
         next_cache = next_decoder_cache if use_cache else None
         forward_end = time.time_ns()
-        print(f"{forward_start}, {forward_end}, {forward_end - forward_start}, Forward Stop, modeling_llama.py")
+        print(f"{forward_start}, {forward_end}, {forward_end - forward_start}, 1, Forward Stop, modeling_llama.py")
         if not return_dict:
             return tuple(v for v in [hidden_states, next_cache, all_hidden_states, all_self_attns] if v is not None)
         return BaseModelOutputWithPast(
