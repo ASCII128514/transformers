@@ -203,13 +203,13 @@ class LlamaAttention(nn.Module):
         ti2 = time.time_ns()
         print(f"{ti}, {ti2}, {ti2 - ti}, 4.5, projection reshape, modeling_llama.py")
 
-        ti = time.time_ns()
         if past_key_value is not None:
             kv_seq_len += past_key_value[0].shape[-2]
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
         # [bsz, nh, t, hd]
 
+        ti = time.time_ns()
         if past_key_value is not None:
             # reuse k, v, self_attention
             key_states = torch.cat([past_key_value[0], key_states], dim=2)
