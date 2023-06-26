@@ -195,11 +195,14 @@ class LlamaAttention(nn.Module):
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         bsz, q_len, _ = hidden_states.size()
 
+        ti = time.time_ns()
         query_states = self.q_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = self.k_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         value_states = self.v_proj(hidden_states).view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
-
         kv_seq_len = key_states.shape[-2]
+        ti2 = time.time_ns()
+        print(f"{ti}, {ti2}, {ti2 - ti}, 4.5, projection reshape, modeling_llama.py")
+
         if past_key_value is not None:
             kv_seq_len += past_key_value[0].shape[-2]
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
@@ -207,9 +210,12 @@ class LlamaAttention(nn.Module):
         # [bsz, nh, t, hd]
 
         if past_key_value is not None:
+            ti = time.time_ns()
             # reuse k, v, self_attention
             key_states = torch.cat([past_key_value[0], key_states], dim=2)
             value_states = torch.cat([past_key_value[1], value_states], dim=2)
+            ti2 = time.time_ns()
+            print(f"{ti}, {ti2}, {ti2 - ti}, 4.5, kv concat, modeling_llama.py")
 
         past_key_value = (key_states, value_states) if use_cache else None
 
@@ -239,10 +245,12 @@ class LlamaAttention(nn.Module):
                 f" {attn_output.size()}"
             )
 
+        ti = time.time_ns()
         attn_output = attn_output.transpose(1, 2)
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
-
         attn_output = self.o_proj(attn_output)
+        ti2 = time.time_ns()
+        print(f"{ti}, {ti2}, {ti2 - ti}, 4.5, output reshape, modeling_llama.py")
 
         if not output_attentions:
             attn_weights = None
