@@ -217,10 +217,14 @@ class LlamaAttention(nn.Module):
 
         past_key_value = (key_states, value_states) if use_cache else None
 
-        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
         ti2 = time.time_ns()
         print(f"{ti}, {ti2}, {ti2 - ti}, 4.5, kv concat, modeling_llama.py")
 
+        ti = time.time_ns()
+        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+
+        ti2 = time.time_ns()
+        print(f"{ti}, {ti2}, {ti2 - ti}, 4.5, actual computation, modeling_llama.py")
         if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
             raise ValueError(
                 f"Attention weights should be of size {(bsz, self.num_heads, q_len, kv_seq_len)}, but is"
